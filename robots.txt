@@ -1,0 +1,5 @@
+User-Agent: *
+Allow: /
+Disallow: /favorites
+
+Sitemap: https://ykashiwada68-cyber.github.io/korean-lotion-pack-guide/sitemap.xml
