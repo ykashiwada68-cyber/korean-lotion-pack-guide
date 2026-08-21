@@ -26,14 +26,17 @@ npm install
 npm run dev
 ```
 
-起動後、ブラウザで [http://localhost:3000](http://localhost:3000) を開くと確認できます。ファイルを保存すると自動的に画面が更新されます。
+起動後、ブラウザで [http://localhost:3000/korean-lotion-pack-guide/](http://localhost:3000/korean-lotion-pack-guide/) を開くと確認できます（GitHub Pagesのサブパス配信に合わせているため、`/korean-lotion-pack-guide/` を付けてアクセスしてください）。ファイルを保存すると自動的に画面が更新されます。
 
-### 本番用ビルド・確認
+### 本番用ビルド（静的書き出し）
+
+このサイトはGitHub Pagesで配信するため `next.config.ts` で `output: "export"` を指定しており、`npm run build` を実行すると `out/` フォルダに静的なHTML一式が生成されます（`next start` によるサーバー起動は使用しません）。
 
 ```bash
 npm run build
-npm run start
 ```
+
+生成された `out/` フォルダの中身をそのまま任意の静的ホスティングにアップロードしても表示できます。
 
 ### コードチェック
 
@@ -43,7 +46,39 @@ npm run lint
 
 ---
 
-## 2. サイトの構成
+## 2. 公開中のサイト・更新方法（GitHub Pages）
+
+このサイトはGitHub Pagesで公開されています。
+
+- **公開URL**: https://ykashiwada68-cyber.github.io/korean-lotion-pack-guide/
+- **ソースコードのリポジトリ**: https://github.com/ykashiwada68-cyber/korean-lotion-pack-guide （`main`ブランチ）
+- **公開されている静的ファイル**: 同リポジトリの `gh-pages`ブランチ（`main`とは別物で、ビルド結果だけが入っています。直接編集しないでください）
+
+### 内容を更新して再公開する手順
+
+1. `src/data/products.ts` など、内容を編集する
+2. 変更内容を`main`ブランチにコミット・プッシュする（履歴を残すため）
+   ```bash
+   git add -A
+   git commit -m "商品を追加"
+   git push
+   ```
+3. 以下のコマンドで、最新版をビルドしてGitHub Pagesへ公開する
+   ```bash
+   npm run deploy
+   ```
+   これは内部で `next build`（静的書き出し）→ `gh-pages`ブランチへの反映、を自動で行います。数分後に公開URLへ反映されます。
+
+### リポジトリ名・公開URLを変更したい場合
+
+GitHub Pagesのプロジェクトページは `https://<ユーザー名>.github.io/<リポジトリ名>/` の形式で配信されるため、リポジトリ名を変更した場合は以下の2箇所を新しい名前に合わせて修正してから `npm run deploy` を実行してください。
+
+- `next.config.ts` の `repoName`
+- `src/lib/site.ts` の `siteConfig.url`
+
+---
+
+## 3. サイトの構成
 
 ```
 src/
@@ -68,7 +103,7 @@ src/
 
 ---
 
-## 3. 文章・ページ内容の編集方法
+## 4. 文章・ページ内容の編集方法
 
 トップページの見出しや紹介文、FAQなどの文章は、対応するページファイル（`src/app/**/page.tsx`）内の日本語テキストを直接書き換えるだけで反映されます。プログラムの知識がなくても、`"` で囲まれた文章部分を編集すれば問題ありません。
 
@@ -79,7 +114,7 @@ src/
 export const siteConfig = {
   name: "ローションパック図鑑",
   description: "……",
-  url: "https://example.com", // ← 本番公開時に実際のドメインへ差し替え
+  url: "https://ykashiwada68-cyber.github.io/korean-lotion-pack-guide", // 公開URL（独自ドメインにする場合はここを変更）
   catchCopy: "今日の肌に、ぴったりの1枚を。",
 };
 ```
@@ -90,7 +125,7 @@ export const siteConfig = {
 
 ---
 
-## 4. 商品の追加・修正方法（最重要）
+## 5. 商品の追加・修正方法（最重要）
 
 商品データはすべて **`src/data/products.ts`** の1ファイルに集約されています。ここに1件追加・編集するだけで、トップページ・種類別ページ・肌悩み別ページ・検索・商品比較のすべてに自動的に反映されます。データベースやCMSの知識は不要です。
 
@@ -168,7 +203,7 @@ export const siteConfig = {
 
 ---
 
-## 5. お気に入り・商品比較機能について
+## 6. お気に入り・商品比較機能について
 
 「お気に入り」「商品比較」は、サーバーやデータベースを使わず、利用者のブラウザ内（localStorage）に保存する仕組みです。そのため：
 
@@ -179,15 +214,15 @@ export const siteConfig = {
 
 ---
 
-## 6. 商品画像について
+## 7. 商品画像について
 
 現在、各商品にはパックの種類ごとに自動生成されるシンプルなイラスト（`src/components/product/ProductIllustration.tsx`）を仮の画像として使用しています。実際の商品写真に差し替える場合は、`src/types/product.ts` の `Product` 型に `imageUrl` などの項目を追加し、`ProductCard.tsx` / `products/[slug]/page.tsx` 内の `<ProductIllustration ... />` を `<img>` または `next/image` の `<Image>` に置き換えてください。商品画像の著作権・利用許諾は、掲載前に必ずブランド側の規約をご確認ください。
 
 ---
 
-## 7. 公開前チェックリスト
+## 8. 公開前チェックリスト
 
-- [ ] `src/lib/site.ts` の `url` を本番ドメインに変更する
+- [ ] 独自ドメインを使う場合は `src/lib/site.ts` の `url` と `next.config.ts` の `basePath` 設定を見直す
 - [ ] `src/app/company/page.tsx` の【　】欄を実際の運営者情報に差し替える
 - [ ] `src/app/privacy/page.tsx` の【　】欄（アクセス解析ツール名・ASP名・制定日など）を実情に合わせて記入する
 - [ ] 全商品の `priceRange` `volume` `scent` 等、`UNCONFIRMED` のままの項目がないか、公式サイトで再確認する
